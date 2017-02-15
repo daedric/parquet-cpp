@@ -31,8 +31,8 @@ endif()
 enable_testing()
 
 # where to find cmake modules
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake_modules")
-set(BUILD_SUPPORT_DIR "${CMAKE_SOURCE_DIR}/build-support")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake_modules")
+set(BUILD_SUPPORT_DIR "${PROJECT_SOURCE_DIR}/build-support")
 
 find_package(ClangTools)
 if ("$ENV{CMAKE_EXPORT_COMPILE_COMMANDS}" STREQUAL "1" OR CLANG_TIDY_FOUND)
@@ -577,6 +577,8 @@ elseif()
   set(SHARED_LINK_FLAGS "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/src/parquet/symbols.map")
 endif()
 
+get_property(current_include_dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+
 if (PARQUET_BUILD_SHARED)
     add_library(parquet_shared SHARED $<TARGET_OBJECTS:parquet_objlib>)
     set_target_properties(parquet_shared
@@ -587,6 +589,11 @@ if (PARQUET_BUILD_SHARED)
     target_link_libraries(parquet_shared
       LINK_PUBLIC ${LIBPARQUET_LINK_LIBS}
       LINK_PRIVATE ${LIBPARQUET_PRIVATE_LINK_LIBS})
+      target_include_directories(
+              parquet_shared
+              SYSTEM
+              PUBLIC
+              ${current_include_dirs})
     if (APPLE)
       set_target_properties(parquet_shared
         PROPERTIES
@@ -604,6 +611,11 @@ if (PARQUET_BUILD_STATIC)
     target_link_libraries(parquet_static
       LINK_PUBLIC ${LIBPARQUET_LINK_LIBS}
       LINK_PRIVATE ${LIBPARQUET_PRIVATE_LINK_LIBS})
+    target_include_directories(
+            parquet_static
+            SYSTEM
+            PUBLIC
+            ${current_include_dirs})
 endif()
 
 add_subdirectory(src/parquet)
