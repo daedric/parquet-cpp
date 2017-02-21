@@ -44,6 +44,7 @@ class PARQUET_EXPORT RowGroupWriter {
     virtual ColumnWriter* NextColumn() = 0;
     virtual int current_column() const = 0;
     virtual void Close() = 0;
+    virtual ~Contents() = default;
   };
 
   explicit RowGroupWriter(std::unique_ptr<Contents> contents);
